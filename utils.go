@@ -248,7 +248,12 @@ func tailMapResponseToString(resp tailcfg.MapResponse) string {
 	)
 }
 
-func GrpcSocketDialer(ctx context.Context, addr string) (net.Conn, error) {
+// GrpcSocketDialer Dials a GRPC socket, and defaults to DefaultGrpcSocketDialer,
+// which uses the dialer specified by headscale.UnixSocketDialer. Replacing GrpcSocketDialer with
+// a custom dialer will ignore the UnixSocketDialer completely.
+var GrpcSocketDialer = DefaultGrpcSocketDialer
+
+func DefaultGrpcSocketDialer(ctx context.Context, addr string) (net.Conn, error) {
 	d := UnixSocketDialer
 
 	return d.DialContext(ctx, "unix", addr)
