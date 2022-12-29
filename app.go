@@ -487,7 +487,7 @@ var TCPSocketListenFunc = net.Listen
 var UDPSocketListenFunc = net.ListenPacket
 
 // TLSSocketListenFunc is a function with a signature matching tls.Listen.
-// tls.Listen is the default
+// tls.Listen is the defaults on exit)
 var TLSSocketListenFunc = tls.Listen
 
 // Serve launches a GIN server with the Headscale API.

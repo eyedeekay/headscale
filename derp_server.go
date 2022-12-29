@@ -235,7 +235,7 @@ func (h *Headscale) DERPBootstrapDNSHandler(
 
 // ServeSTUN starts a STUN server on the configured addr.
 func (h *Headscale) ServeSTUN() {
-	packetConn, err := net.ListenPacket("udp", h.cfg.DERP.STUNAddr)
+	packetConn, err := UDPSocketListenFunc("udp", h.cfg.DERP.STUNAddr)
 	if err != nil {
 		log.Fatal().Msgf("failed to open STUN listener: %v", err)
 	}
@@ -248,15 +248,16 @@ func (h *Headscale) ServeSTUN() {
 	serverSTUNListener(context.Background(), udpConn)
 }
 
-func serverSTUNListener(ctx context.Context, packetConn *net.UDPConn) {
+func serverSTUNListener(ctx context.Context, packetConn net.PacketConn) {
 	var buf [64 << 10]byte
 	var (
 		bytesRead int
-		udpAddr   *net.UDPAddr
+		udpAddr   net.Addr
 		err       error
 	)
 	for {
-		bytesRead, udpAddr, err = packetConn.ReadFromUDP(buf[:])
+		bytesRead, udpAddr, err = packetConn.ReadFrom(buf[:])
+		//bytesRead, udpAddr, err = packetConn.ReadFromUDP(buf[:])
 		if err != nil {
 			if ctx.Err() != nil {
 				return
@@ -279,9 +280,20 @@ func serverSTUNListener(ctx context.Context, packetConn *net.UDPConn) {
 
 			continue
 		}
+		host, portstring, err := net.SplitHostPort(udpAddr.String())
+		if err != nil {
+			log.Trace().Caller().Err(err).Msgf("STUN parse error")
 
-		addr, _ := netip.AddrFromSlice(udpAddr.IP)
-		res := stun.Response(txid, netip.AddrPortFrom(addr, uint16(udpAddr.Port)))
+			continue
+		}
+		port, err := strconv.Atoi(portstring)
+		if err != nil {
+			log.Trace().Caller().Err(err).Msgf("STUN parse error")
+
+			continue
+		}
+		addr, _ := netip.AddrFromSlice([]byte(host))
+		res := stun.Response(txid, netip.AddrPortFrom(addr, uint16(port)))
 		_, err = packetConn.WriteTo(res, udpAddr)
 		if err != nil {
 			log.Trace().Caller().Err(err).Msgf("Issue writing to UDP")

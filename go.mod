@@ -9,6 +9,7 @@ require (
 	github.com/coreos/go-oidc/v3 v3.4.0
 	github.com/deckarep/golang-set/v2 v2.1.0
 	github.com/efekarakus/termcolor v1.0.1
+	github.com/eyedeekay/onramp v0.0.0-20220829050101-64cb1842d0f0
 	github.com/glebarez/sqlite v1.5.0
 	github.com/gofrs/uuid v4.3.1+incompatible
 	github.com/gorilla/mux v1.8.0
@@ -58,11 +59,14 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/containerd/continuity v0.3.0 // indirect
+	github.com/cretz/bine v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/cli v20.10.21+incompatible // indirect
 	github.com/docker/docker v20.10.21+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
+	github.com/eyedeekay/i2pkeys v0.0.0-20220804220722-1048b5ce6ba7 // indirect
+	github.com/eyedeekay/sam3 v0.33.3 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.4.0 // indirect
 	github.com/glebarez/go-sqlite v1.19.5 // indirect
@@ -149,3 +153,5 @@ require (
 	modernc.org/sqlite v1.20.0 // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
 )
+
+replace github.com/eyedeekay/onramp => ../../eyedeekay/onramp
