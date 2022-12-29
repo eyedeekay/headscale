@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/eyedeekay/onramp"
+	"github.com/eyedeekay/sam3"
 	"github.com/juanfont/headscale"
 )
 
@@ -16,7 +17,7 @@ func init() {
 }
 
 var hiddenServeCmd = &cobra.Command{
-	Use:   "serve",
+	Use:   "hiddenserve",
 	Short: "Launches the headscale server as a hidden(I2P) service",
 	Args: func(cmd *cobra.Command, args []string) error {
 		return nil
@@ -26,7 +27,10 @@ var hiddenServeCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal().Caller().Err(err).Msg("Error initializing")
 		}
-		garlic := onramp.Garlic{}
+		garlic, err := onramp.NewGarlic("headscale", "127.0.0.1:7656", sam3.Options_Wide)
+		if err != nil {
+			log.Fatal().Caller().Err(err).Msg("Error initializing SAMv3 API")
+		}
 		headscale.UnixSocketListenFunc = net.Listen
 		headscale.TCPSocketListenFunc = func(network, address string) (net.Listener, error) {
 			return garlic.Listen()
