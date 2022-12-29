@@ -249,7 +249,7 @@ func tailMapResponseToString(resp tailcfg.MapResponse) string {
 }
 
 func GrpcSocketDialer(ctx context.Context, addr string) (net.Conn, error) {
-	var d net.Dialer
+	d := UnixSocketDialer
 
 	return d.DialContext(ctx, "unix", addr)
 }

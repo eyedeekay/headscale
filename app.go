@@ -470,6 +470,12 @@ func (h *Headscale) createRouter(grpcMux *runtime.ServeMux) *mux.Router {
 	return router
 }
 
+var UnixSocketListenFunc = net.Listen
+var UnixSocketDialer net.Dialer
+var TCPSocketListenFunc = net.Listen
+var UDPSocketListenFunc = net.ListenPacket
+var TLSSocketListenFunc = tls.Listen
+
 // Serve launches a GIN server with the Headscale API.
 func (h *Headscale) Serve() error {
 	var err error
@@ -520,7 +526,7 @@ func (h *Headscale) Serve() error {
 		return fmt.Errorf("unable to remove old socket file: %w", err)
 	}
 
-	socketListener, err := net.Listen("unix", h.cfg.UnixSocket)
+	socketListener, err := UnixSocketListenFunc("unix", h.cfg.UnixSocket)
 	if err != nil {
 		return fmt.Errorf("failed to set up gRPC socket: %w", err)
 	}
@@ -610,7 +616,7 @@ func (h *Headscale) Serve() error {
 		v1.RegisterHeadscaleServiceServer(grpcServer, newHeadscaleV1APIServer(h))
 		reflection.Register(grpcServer)
 
-		grpcListener, err = net.Listen("tcp", h.cfg.GRPCAddr)
+		grpcListener, err = TCPSocketListenFunc("tcp", h.cfg.GRPCAddr)
 		if err != nil {
 			return fmt.Errorf("failed to bind to TCP address: %w", err)
 		}
@@ -643,9 +649,9 @@ func (h *Headscale) Serve() error {
 	var httpListener net.Listener
 	if tlsConfig != nil {
 		httpServer.TLSConfig = tlsConfig
-		httpListener, err = tls.Listen("tcp", h.cfg.Addr, tlsConfig)
+		httpListener, err = TLSSocketListenFunc("tcp", h.cfg.Addr, tlsConfig)
 	} else {
-		httpListener, err = net.Listen("tcp", h.cfg.Addr)
+		httpListener, err = TCPSocketListenFunc("tcp", h.cfg.Addr)
 	}
 	if err != nil {
 		return fmt.Errorf("failed to bind to TCP address: %w", err)
@@ -667,7 +673,7 @@ func (h *Headscale) Serve() error {
 	}
 
 	var promHTTPListener net.Listener
-	promHTTPListener, err = net.Listen("tcp", h.cfg.MetricsAddr)
+	promHTTPListener, err = TCPSocketListenFunc("tcp", h.cfg.MetricsAddr)
 
 	if err != nil {
 		return fmt.Errorf("failed to bind to TCP address: %w", err)
