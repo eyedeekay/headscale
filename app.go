@@ -372,6 +372,15 @@ func (h *Headscale) grpcAuthenticationInterceptor(ctx context.Context,
 	return handler(ctx, req)
 }
 
+func (h *Headscale) corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(
+		writer http.ResponseWriter,
+		req *http.Request,
+	) {
+		writer.Header().Set("Access-Control-Allow-Origin", h.cfg.AllowOrigin)
+	})
+}
+
 func (h *Headscale) httpAuthenticationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(
 		writer http.ResponseWriter,
@@ -482,6 +491,7 @@ func (h *Headscale) createRouter(grpcMux *runtime.ServeMux) *mux.Router {
 	}
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
+	apiRouter.Use(h.corsMiddleware)
 	apiRouter.Use(h.httpAuthenticationMiddleware)
 	apiRouter.PathPrefix("/v1/").HandlerFunc(grpcMux.ServeHTTP)
 

@@ -30,6 +30,7 @@ const (
 type Config struct {
 	ServerURL                      string
 	Addr                           string
+	AllowOrigin                    string
 	MetricsAddr                    string
 	GRPCAddr                       string
 	GRPCAllowInsecure              bool
@@ -517,6 +518,7 @@ func GetHeadscaleConfig() (*Config, error) {
 	return &Config{
 		ServerURL:          viper.GetString("server_url"),
 		Addr:               viper.GetString("listen_addr"),
+		AllowOrigin:        viper.GetString("allow_origin"),
 		MetricsAddr:        viper.GetString("metrics_listen_addr"),
 		GRPCAddr:           viper.GetString("grpc_listen_addr"),
 		GRPCAllowInsecure:  viper.GetBool("grpc_allow_insecure"),
