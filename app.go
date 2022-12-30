@@ -101,6 +101,26 @@ type Headscale struct {
 	pollNetMapStreamWG sync.WaitGroup
 }
 
+// UnixSocketListenFunc is a function with a signature matching net.Listen.
+// net.Listen is the default
+var UnixSocketListenFunc = net.Listen
+
+// UnixSocketDialer must have a net.Dial and net.DialContext function.
+// default dialer is valid.
+var UnixSocketDialer net.Dialer
+
+// TCPSocketListenFunc is a function with a signature matching net.Listen.
+// net.Listen is the default
+var TCPSocketListenFunc = net.Listen
+
+// UDPSocketListenFunc is a function with a signature matching net.ListenPacket.
+// net.ListenPacket is the default
+var UDPSocketListenFunc = net.ListenPacket
+
+// TLSSocketListenFunc is a function with a signature matching tls.Listen.
+// tls.Listen is the defaults on exit)
+var TLSSocketListenFunc = tls.Listen
+
 func NewHeadscale(cfg *Config) (*Headscale, error) {
 	privateKey, err := readOrCreatePrivateKey(cfg.PrivateKeyPath)
 	if err != nil {
@@ -469,26 +489,6 @@ func (h *Headscale) createRouter(grpcMux *runtime.ServeMux) *mux.Router {
 
 	return router
 }
-
-// UnixSocketListenFunc is a function with a signature matching net.Listen.
-// net.Listen is the default
-var UnixSocketListenFunc = net.Listen
-
-// UnixSocketDialer must have a net.Dial and net.DialContext function.
-// default dialer is valid.
-var UnixSocketDialer net.Dialer
-
-// TCPSocketListenFunc is a function with a signature matching net.Listen.
-// net.Listen is the default
-var TCPSocketListenFunc = net.Listen
-
-// UDPSocketListenFunc is a function with a signature matching net.ListenPacket.
-// net.ListenPacket is the default
-var UDPSocketListenFunc = net.ListenPacket
-
-// TLSSocketListenFunc is a function with a signature matching tls.Listen.
-// tls.Listen is the defaults on exit)
-var TLSSocketListenFunc = tls.Listen
 
 // Serve launches a GIN server with the Headscale API.
 func (h *Headscale) Serve() error {
