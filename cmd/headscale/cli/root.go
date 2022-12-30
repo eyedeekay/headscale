@@ -98,9 +98,8 @@ var rootCmd = &cobra.Command{
 	Use:   hs,
 	Short: hs + " - a Tailscale control server",
 	Long: `
-` + hs + ` is ` + HelpMessage + `
+` + hs + ` is an open source implementation of the Tailscale control server
 
-Variant created by:` + strings.Split(RepositoryURL, "/")[len(strings.Split(RepositoryURL, "/"))-2] + `
 ` + RepositoryURL,
 }
 
