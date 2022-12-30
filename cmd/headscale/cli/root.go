@@ -3,7 +3,9 @@ package cli
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/juanfont/headscale"
 	"github.com/rs/zerolog"
@@ -67,14 +69,14 @@ func initConfig() {
 		if (runtime.GOOS == "linux" || runtime.GOOS == "darwin") &&
 			Version != "dev" {
 			githubTag := &latest.GithubTag{
-				Owner:      "juanfont",
-				Repository: "headscale",
+				Owner:      strings.Split(RepositoryURL, "/")[len(strings.Split(RepositoryURL, "/"))-2],
+				Repository: strings.Split(RepositoryURL, "/")[len(strings.Split(RepositoryURL, "/"))-1],
 			}
 			res, err := latest.Check(githubTag, Version)
 			if err == nil && res.Outdated {
 				//nolint
 				fmt.Printf(
-					"An updated version of Headscale has been found (%s vs. your current %s). Check it out https://github.com/juanfont/headscale/releases\n",
+					"An updated version of Headscale has been found (%s vs. your current %s). Check it out https://github.com/"+githubTag.Owner+"/"+githubTag.Repository+"/releases\n",
 					res.Current,
 					Version,
 				)
@@ -83,16 +85,30 @@ func initConfig() {
 	}
 }
 
-var rootCmd = &cobra.Command{
-	Use:   "headscale",
-	Short: "headscale - a Tailscale control server",
-	Long: `
-headscale is an open source implementation of the Tailscale control server
+func Executable() (string, error) {
+	hs, exeerr := os.Executable()
+	return filepath.Base(hs), exeerr
+}
 
-https://github.com/juanfont/headscale`,
+var hs, exeerr = Executable()
+
+var HelpMessage string = "is an I2P-Hosted Tailscale control server based on the Open-Source Headscale server"
+var RepositoryURL string = "https://github.com/juanfont/headscale"
+var rootCmd = &cobra.Command{
+	Use:   hs,
+	Short: hs + " - a Tailscale control server",
+	Long: `
+` + hs + ` is ` + HelpMessage + `
+
+Variant created by:` + strings.Split(RepositoryURL, "/")[len(strings.Split(RepositoryURL, "/"))-2] + `
+` + RepositoryURL,
 }
 
 func Execute() {
+	if exeerr != nil {
+		fmt.Fprintln(os.Stderr, exeerr)
+		os.Exit(1)
+	}
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
